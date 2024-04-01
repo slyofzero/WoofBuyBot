@@ -7,6 +7,6 @@ export async function apiFetcher<T>(url: string) {
     return { response: response.status, data };
   } catch (error) {
     errorHandler(error);
-    return null;
+    return { response: 400, data: null };
   }
 }

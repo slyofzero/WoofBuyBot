@@ -5,6 +5,7 @@ declare global {
       BOT_USERNAME: string | undefined;
       NODE_ENV: "development" | "production";
       FIREBASE_KEY: string | undefined;
+      ALCHEMY_API_KEY: string | undefined;
     }
   }
 }

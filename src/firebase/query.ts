@@ -37,7 +37,7 @@ export const addDocument = async <T>({
   collectionName,
   id,
 }: addDocumentInterface<T>) => {
-  collectionName += firebaseCollectionPrefix;
+  collectionName += `_${firebaseCollectionPrefix}`;
   const collectionRef = db.collection(collectionName);
   let docRef: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData> | null =
     null;
@@ -57,7 +57,7 @@ export const removeDocumentById = async ({
   id,
 }: removeDocumentInterface) => {
   try {
-    collectionName += firebaseCollectionPrefix;
+    collectionName += `_${firebaseCollectionPrefix}`;
     const collectionRef = db.collection(collectionName);
     const docRef = collectionRef.doc(id);
 
@@ -78,7 +78,7 @@ export const removeDocument = async <T>({
   collectionName,
   limit: _limit,
 }: getDocumentInterface<T>) => {
-  collectionName += firebaseCollectionPrefix;
+  collectionName += `_${firebaseCollectionPrefix}`;
   const collectionRef = db.collection(collectionName);
   let queryRef: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> =
     collectionRef;
@@ -108,7 +108,7 @@ export const getDocumentById = async <T>({
   collectionName,
   id,
 }: getDocumentByIdInterface) => {
-  collectionName += firebaseCollectionPrefix;
+  collectionName += `_${firebaseCollectionPrefix}`;
   const docRef = db.collection(collectionName).doc(id);
   const docSnapshot = await docRef.get();
 
@@ -125,7 +125,7 @@ export const getDocument = async <T>({
   collectionName,
   limit: _limit,
 }: getDocumentInterface<T>) => {
-  collectionName += firebaseCollectionPrefix;
+  collectionName += `_${firebaseCollectionPrefix}`;
   const collectionRef = db.collection(collectionName);
   let queryRef: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> =
     collectionRef;
@@ -158,7 +158,7 @@ export const updateDocumentById = async <T>({
   updates,
   collectionName,
 }: updateDocumentByIdInterface<T>) => {
-  collectionName += firebaseCollectionPrefix;
+  collectionName += `_${firebaseCollectionPrefix}`;
   const dataRef = db.collection(collectionName).doc(id);
   await dataRef.update(updates as object);
   const docSnap = await dataRef.get();

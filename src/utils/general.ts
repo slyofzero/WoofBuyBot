@@ -1,5 +1,4 @@
 import { cleanUpBotMessage } from "./bot";
-import { urlRegex } from "./constants";
 
 export function formatToInternational(numberToFormat: string | number) {
   numberToFormat = Number(Number(numberToFormat).toFixed(2));
@@ -46,6 +45,10 @@ export function formatM2Number(num: string | number) {
   return cleanUpBotMessage(formatNumber(num));
 }
 
+export function formatFloat(num: string | number) {
+  return cleanUpBotMessage(parseFloat(String(num)));
+}
+
 export function roundUpToDecimalPlace(
   number: string | number,
   decimalPlaces: number
@@ -72,10 +75,13 @@ export function generateRandomID() {
   return `${part1}-${part2}-${part3}`;
 }
 
-export function isValidUrl(url: string) {
-  return urlRegex.test(url);
-}
-
 export function floatToBigInt(num: number) {
   return BigInt(Math.floor(num));
+}
+
+export function shortenAddress(address: string) {
+  return `${address.slice(0, 3)}...${address.slice(
+    address.length - 3,
+    address.length
+  )}`;
 }
