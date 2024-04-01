@@ -42,10 +42,11 @@ export async function sendAlert(token: string, txnData: TxnData) {
   );
 
   for (const group of groups) {
-    const { emoji, chatid, mediaType, media } = group;
+    const { emoji, chatId, mediaType, media } = group;
     const emojis = `${emoji || "🟢"}`.repeat(emojiCount);
 
-    const text = `[${cleanedName} Buy!](https://t.me/${BOT_USERNAME})
+    const text = `*WHALE ALERT\\!\\!\\!*
+[${cleanedName} Buy!](https://t.me/${BOT_USERNAME})
 ${emojis}
   
 💲 *Spent*: ${cleanUpBotMessage(buyEth)} ETH \\($${cleanUpBotMessage(buyUsd)}\\)
@@ -64,12 +65,12 @@ ${emojis}
           sendMsgFn = teleBot.api.sendPhoto;
         }
 
-        await sendMsgFn(chatid, media, {
+        await sendMsgFn(chatId, media, {
           caption: text,
           parse_mode: "MarkdownV2",
         });
       } else {
-        await teleBot.api.sendMessage(chatid, text, {
+        await teleBot.api.sendMessage(chatId, text, {
           parse_mode: "MarkdownV2",
         });
       }

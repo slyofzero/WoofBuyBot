@@ -21,7 +21,7 @@ interface removeDocumentInterface {
 interface getDocumentInterface<T> {
   collectionName: string;
   // eslint-disable-next-line
-  queries?: [keyof T, WhereFilterOp, any][];
+  queries?: [key: keyof T, op: WhereFilterOp, value: T[keyof T]][];
   limit?: number;
 }
 

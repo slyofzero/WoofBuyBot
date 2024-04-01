@@ -1,7 +1,7 @@
 export interface StoredGroup {
   id?: string;
   token: string;
-  chatid: string;
+  chatId: number;
   emoji?: string;
   media?: string;
   mediaType?: "video" | "photo";
