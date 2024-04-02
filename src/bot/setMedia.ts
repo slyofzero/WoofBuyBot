@@ -69,7 +69,7 @@ export async function setMedia(ctx: CommandContext<Context>) {
     }).then(() => syncProjectGroups());
 
     log(`Set media added ${file_id} for ${chatId}`);
-    text = `New GIF set`;
+    text = `New ${mediaType} set`;
 
     delete userState[chatId];
   }

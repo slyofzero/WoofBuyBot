@@ -4,7 +4,7 @@ import { userState } from "@/vars/state";
 import { setEmoji, setEmojiCallBack } from "./setEmoji";
 import { removeEmoji, removeEmojiCallback } from "./removeEmoji";
 import { setMedia, setMediaCallback } from "./setMedia";
-import { removeMedia, removeMediaCallback } from "./removeGif";
+import { removeMedia, removeMediaCallback } from "./removeMedia";
 
 const steps: { [key: string]: any } = {
   setEmoji: setEmojiCallBack,
