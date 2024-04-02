@@ -2,10 +2,22 @@ import { CallbackQueryContext, CommandContext, Context } from "grammy";
 import { log } from "@/utils/handlers";
 import { userState } from "@/vars/state";
 import { setEmoji, setEmojiCallBack } from "./setEmoji";
+import { removeEmoji, removeEmojiCallback } from "./removeEmoji";
+import { setMedia, setMediaCallback } from "./setMedia";
+import { removeMedia, removeMediaCallback } from "./removeGif";
 
 const steps: { [key: string]: any } = {
   setEmoji: setEmojiCallBack,
   userSetEmoji: setEmoji,
+
+  removeEmoji: removeEmojiCallback,
+  userRemoveEmoji: removeEmoji,
+
+  setMedia: setMediaCallback,
+  userSetMedia: setMedia,
+
+  removeMedia: removeMediaCallback,
+  userRemoveMedia: removeMedia,
 };
 
 export async function executeStep(

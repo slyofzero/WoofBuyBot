@@ -2,7 +2,7 @@ export interface StoredGroup {
   id?: string;
   token: string;
   chatId: number;
-  emoji?: string;
-  media?: string;
-  mediaType?: "video" | "photo";
+  emoji?: string | null;
+  media?: string | null;
+  mediaType?: "video" | "photo" | null;
 }

@@ -1,8 +1,8 @@
-import { getDocument, updateDocumentById } from "@/firebase";
+import { updateDocumentById } from "@/firebase";
 import { StoredGroup } from "@/types";
 import { onlyAdmin } from "@/utils/bot";
 import { log } from "@/utils/handlers";
-import { syncProjectGroups } from "@/vars/projectGroups";
+import { projectGroups, syncProjectGroups } from "@/vars/projectGroups";
 import { userState } from "@/vars/state";
 import { CallbackQueryContext, CommandContext, Context } from "grammy";
 
@@ -17,12 +17,12 @@ export async function setEmojiCallBack(ctx: CallbackQueryContext<Context>) {
   userState[chatId] = "userSetEmoji";
 
   ctx.deleteMessage();
-  ctx.editMessageText(text);
+  ctx.reply(text);
 }
 
 export async function setEmoji(ctx: CommandContext<Context>) {
   const { id: chatId, type } = ctx.chat;
-  const emoji = ctx.message?.text;
+  const emoji = ctx.message?.text || ctx.channelPost?.text;
 
   const isAdmin = await onlyAdmin(ctx);
   if (!isAdmin) return false;
@@ -31,10 +31,9 @@ export async function setEmoji(ctx: CommandContext<Context>) {
     return ctx.reply("Please send an emoji in the next message");
   }
 
-  const [group] = await getDocument<StoredGroup>({
-    collectionName: "project_groups",
-    queries: [["chatId", "==", chatId]],
-  });
+  const group = projectGroups.find(
+    ({ chatId: storedChatId }) => storedChatId === chatId
+  );
 
   if (!group || !group.id) {
     return ctx.reply(
@@ -42,6 +41,7 @@ export async function setEmoji(ctx: CommandContext<Context>) {
     );
   }
 
+  delete userState[chatId];
   updateDocumentById<StoredGroup>({
     id: group.id,
     collectionName: "project_groups",

@@ -18,10 +18,10 @@ export async function settings(ctx: CommandContext<Context>) {
     "Customize your bot here. You can customize the message the bot would send to fit your project.";
   const keyboard = new InlineKeyboard()
     .text("Set emoji", "setEmoji")
-    .text("Set media", "setGif")
+    .text("Set media", "setMedia")
     .row()
     .text("Remove emoji", "removeEmoji")
-    .text("Remove media", "removeGif");
+    .text("Remove media", "removeMedia");
 
   ctx.reply(text, { reply_markup: keyboard });
 }

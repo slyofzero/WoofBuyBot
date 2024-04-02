@@ -28,14 +28,15 @@ export async function sendAlert(token: string, txnData: TxnData) {
   const shortendReceiver = shortenAddress(buyer);
   const amountReceived = roundUpToDecimalPlace(buyUsd / Number(priceUsd), 2);
 
-  const socialsText = [
-    info.socials
-      .map(({ type, url }) => `[${toTitleCase(type)}](${url})`)
-      .join(" \\| "),
-    info.websites
-      .map(({ label, url }) => `[${toTitleCase(label)}](${url})`)
-      .join(" \\| "),
-  ].join(" \\| ");
+  const socials = info?.socials
+    .map(({ type, url }) => `[${toTitleCase(type)}](${url})`)
+    .join(" \\| ");
+  const websites = info?.websites
+    .map(({ label, url }) => `[${toTitleCase(label)}](${url})`)
+    .join(" \\| ");
+
+  const socialsText =
+    socials || websites ? `${socials} \\| ${websites}`.trim() : "No socials";
 
   const groups = projectGroups.filter(
     ({ token: storedToken }) => storedToken === token
