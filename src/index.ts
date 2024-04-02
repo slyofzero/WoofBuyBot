@@ -24,36 +24,42 @@ log("Bot instance ready");
     log("wssProvider or web3 is null");
     return false;
   }
-  // const subscription = await web3.eth.subscribe("newBlockHeaders");
-  // subscription.on("data", async (blockHeader) => {
-  //   const block = await web3?.eth.getBlock(blockHeader.hash, false);
-  //   log(`Block ${block?.number} caught`);
 
-  //   if (block && block.transactions) {
-  //     for (const txHash of block.transactions) {
-  //       const tx = (await web3?.eth.getTransaction(
-  //         txHash.toString()
-  //       )) as TransactionExtended;
-  //       processTxn(tx);
-  //     }
-  //   }
-  // });
+  // const tx = (await web3?.eth.getTransaction(
+  //   "0xaee94da08b38bc58bc08191af7195cb0f1d01128cd09b6a8f72e009aa34074fd"
+  // )) as TransactionExtended;
+  // processTxn(tx);
 
-  // subscription.on("error", (err) => {
-  //   const error = err as Error;
-  //   log(`WS connection error: ${error.message}`);
-  //   process.exit(1);
-  // });
-  // wssProvider.on("end", () => {
-  //   log("WS connection closed. Attempting to reconnect...");
-  //   process.exit(1);
-  // });
-  // // @ts-expect-error no err type
-  // wssProvider.on("error", (err) => {
-  //   const error = err as Error;
-  //   log(`WS connection error: ${error.message}`);
-  //   process.exit(1);
-  // });
+  const subscription = await web3.eth.subscribe("newBlockHeaders");
+  subscription.on("data", async (blockHeader) => {
+    const block = await web3?.eth.getBlock(blockHeader.hash, false);
+    log(`Block ${block?.number} caught`);
+
+    if (block && block.transactions) {
+      for (const txHash of block.transactions) {
+        const tx = (await web3?.eth.getTransaction(
+          txHash.toString()
+        )) as TransactionExtended;
+        processTxn(tx);
+      }
+    }
+  });
+
+  subscription.on("error", (err) => {
+    const error = err as Error;
+    log(`WS connection error: ${error.message}`);
+    process.exit(1);
+  });
+  wssProvider.on("end", () => {
+    log("WS connection closed. Attempting to reconnect...");
+    process.exit(1);
+  });
+  // @ts-expect-error no err type
+  wssProvider.on("error", (err) => {
+    const error = err as Error;
+    log(`WS connection error: ${error.message}`);
+    process.exit(1);
+  });
 
   setInterval(() => {
     getEthPrice();

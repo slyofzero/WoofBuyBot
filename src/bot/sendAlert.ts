@@ -25,8 +25,12 @@ export async function sendAlert(token: string, txnData: TxnData) {
 
   const cleanedName = cleanUpBotMessage(name);
   const emojiCount = generateBuyEmojis(buyUsd);
-  const shortendReceiver = shortenAddress(buyer);
+  const shortendReceiver = cleanUpBotMessage(shortenAddress(buyer));
   const amountReceived = roundUpToDecimalPlace(buyUsd / Number(priceUsd), 2);
+
+  const chartUrl = `https://dexscreener.com/ethereum/${token}`;
+  const magnum_url = `https://t.me/magnum_trade_bot?start=PHryLEnW_snipe_${token}`;
+  const ttfbot_url = `https://t.me/ttfbotbot?start=${token}`;
 
   const socials = info?.socials
     .map(({ type, url }) => `[${toTitleCase(type)}](${url})`)
@@ -47,7 +51,7 @@ export async function sendAlert(token: string, txnData: TxnData) {
     const emojis = `${emoji || "🟢"}`.repeat(emojiCount);
 
     const text = `*WHALE ALERT\\!\\!\\!*
-[${cleanedName} Buy!](https://t.me/${BOT_USERNAME})
+[${cleanedName} Buy\\!](https://t.me/${BOT_USERNAME})
 ${emojis}
   
 💲 *Spent*: ${cleanUpBotMessage(buyEth)} ETH \\($${cleanUpBotMessage(buyUsd)}\\)
@@ -55,21 +59,28 @@ ${emojis}
 👤 *Buyer*: [${shortendReceiver}](${EXPLORER_URL}/account/${buyer})
 📊 *MC*: \\$${fdv.toLocaleString("en")}
 🏷 *Price*: \\$${formatFloat(priceUsd)}
-🫧 *Socials*: ${cleanUpBotMessage(socialsText)}`;
+🫧 *Socials*: ${cleanUpBotMessage(socialsText)}
+
+[*📊 Chart*](${chartUrl}) \\| [*✨ Tx*](${EXPLORER_URL}/tx/${txnData.hash}) 
+[*📡 TTF Bot*](${ttfbot_url}) \\| [*🎯 Magnum Bot*](${magnum_url})
+
+*Alerts by @${BOT_USERNAME}*
+`;
 
     // --------------------- Sending message ---------------------
     try {
       if (media) {
-        let sendMsgFn = teleBot.api.sendVideo;
-        if (mediaType === "photo") {
-          // @ts-expect-error Weird types
-          sendMsgFn = teleBot.api.sendPhoto;
+        if (mediaType === "video") {
+          await teleBot.api.sendVideo(chatId, media, {
+            caption: text,
+            parse_mode: "MarkdownV2",
+          });
+        } else {
+          await teleBot.api.sendPhoto(chatId, media, {
+            caption: text,
+            parse_mode: "MarkdownV2",
+          });
         }
-
-        await sendMsgFn(chatId, media, {
-          caption: text,
-          parse_mode: "MarkdownV2",
-        });
       } else {
         await teleBot.api.sendMessage(chatId, text, {
           parse_mode: "MarkdownV2",
