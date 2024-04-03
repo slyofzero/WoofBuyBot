@@ -70,7 +70,7 @@ export async function processTxn(tx: TransactionExtended) {
       log(`Maestro ${token} buy of $${buy} - ${tx.hash}`);
   }
 
-  // if (buy < buyLimit) return false
+  if (buy < buyLimit) return false;
 
   // ------------------------------ Logging buy ------------------------------
   if (!token) return false;
