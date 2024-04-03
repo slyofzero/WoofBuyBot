@@ -16,7 +16,9 @@ export async function startBot(ctx: CommandContext<Context>) {
 @${BOT_USERNAME} is to be added to your project telegram. By adding @${BOT_USERNAME} to your project, you will be able to view  the buys, marketcap and transactions real time. Hype your project with a dedicated buy bot today!
 
 ◦ /start : To start the bot
-◦ /settings : Opens the menu to add a token, gif, telegram group link and adjust any available settings for the buy bot`;
+◦ /settings : Opens the menu to add a token, gif, telegram group link and adjust any available settings for the buy bot
+
+Pass a token address in the bot chat to get an AI generated token report in real time.`;
 
     return ctx.reply(cleanUpBotMessage(text), { parse_mode: "MarkdownV2" });
   }
