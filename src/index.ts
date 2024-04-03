@@ -1,11 +1,21 @@
 import { Bot } from "grammy";
 import { initiateBotCommands, initiateCallbackQueries } from "./bot";
 import { log } from "./utils/handlers";
-import { BOT_TOKEN } from "./utils/env";
+import { BOT_TOKEN, OPEN_AI_KEY } from "./utils/env";
 import { configureWeb3, processTxn, web3, wssProvider } from "./ethWeb3";
 import { getEthPrice } from "./vars/ethPrice";
 import { TransactionExtended } from "./types/web3";
 import { syncProjectGroups } from "./vars/projectGroups";
+import { OpenAI } from "openai";
+
+if (!OPEN_AI_KEY) {
+  log("OPEN_AI_KEY is undefined");
+  process.exit(1);
+}
+
+export const openai = new OpenAI({
+  apiKey: OPEN_AI_KEY,
+});
 
 export const teleBot = new Bot(BOT_TOKEN || "");
 log("Bot instance ready");
