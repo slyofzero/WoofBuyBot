@@ -2,7 +2,7 @@ import { addDocument, getDocument, updateDocumentById } from "@/firebase";
 import { StoredGroup } from "@/types";
 import { cleanUpBotMessage, onlyAdmin } from "@/utils/bot";
 import { BOT_USERNAME } from "@/utils/env";
-import { isValidEthAddress } from "@/utils/web3";
+import { syncProjectGroups } from "@/vars/projectGroups";
 import { CommandContext, Context } from "grammy";
 
 export async function startBot(ctx: CommandContext<Context>) {
@@ -27,9 +27,9 @@ Pass a token address in the bot chat to get an AI generated token report in real
   if (!isAdmin) return false;
 
   if (token) {
-    if (!isValidEthAddress(token)) {
-      return ctx.reply("Please pass a valid ETH token address");
-    }
+    // if (!isValidEthAddress(token)) {
+    //   return ctx.reply("Please pass a valid ETH token address");
+    // }
 
     text = `This ${type} would now get updates for \`${token}\` buys. Each time the bot detects a buy for your token, a message would be sent in this group with some data about it.
 
@@ -48,7 +48,7 @@ type /settings`;
         updates,
         collectionName: "project_groups",
         id: projectData.id || "",
-      });
+      }).then(() => syncProjectGroups());
 
       return;
     }
@@ -57,7 +57,7 @@ type /settings`;
     addDocument<StoredGroup>({
       data: { chatId, token },
       collectionName: "project_groups",
-    });
+    }).then(() => syncProjectGroups());
     return;
   }
 

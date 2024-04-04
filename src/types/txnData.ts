@@ -1,6 +1,11 @@
 export interface TxnData {
-  buyUsd: number;
-  buyEth: number;
-  buyer: string;
-  hash: string;
+  tokenSent: string;
+  amountSent: number;
+  tokenReceived: string;
+  amountReceived: number;
+  token: string;
+  version: string;
+  receiver: string;
 }
+
+export type ReceiversData = { [key: string]: TxnData };

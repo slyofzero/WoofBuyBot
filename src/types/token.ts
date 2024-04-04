@@ -1,76 +1,72 @@
-interface Token {
-  address: string;
-  name: string;
-  symbol: string;
-}
-
-interface TransactionCounts {
-  buys: number;
-  sells: number;
-}
-
-interface TransactionData {
-  m5: TransactionCounts;
-  h1: TransactionCounts;
-  h6: TransactionCounts;
-  h24: TransactionCounts;
-}
-
-interface VolumeData {
-  h24: number;
-  h6: number;
-  h1: number;
-  m5: number;
-}
-
-interface PriceChangeData {
-  m5: number;
-  h1: number;
-  h6: number;
-  h24: number;
-}
-
-interface LiquidityData {
-  usd: number;
-  base: number;
-  quote: number;
-}
-
-interface Social {
-  type: string;
-  url: string;
-}
-
-interface Website {
-  label: string;
-  url: string;
-}
-
-interface PairInfo {
-  imageUrl: string;
-  websites: Website[];
-  socials: Social[];
-}
-
-interface Pair {
+type DexPair = {
   chainId: string;
   dexId: string;
   url: string;
   pairAddress: string;
-  baseToken: Token;
-  quoteToken: Token;
+  baseToken: {
+    address: string;
+    name: string;
+    symbol: string;
+  };
+  quoteToken: {
+    address: string;
+    name: string;
+    symbol: string;
+  };
   priceNative: string;
   priceUsd: string;
-  txns: TransactionData;
-  volume: VolumeData;
-  priceChange: PriceChangeData;
-  liquidity: LiquidityData;
-  fdv: number;
+  txns: {
+    m5: {
+      buys: number;
+      sells: number;
+    };
+    h1: {
+      buys: number;
+      sells: number;
+    };
+    h6: {
+      buys: number;
+      sells: number;
+    };
+    h24: {
+      buys: number;
+      sells: number;
+    };
+  };
+  volume: {
+    h24: number;
+    h6: number;
+    h1: number;
+    m5: number;
+  };
+  priceChange: {
+    m5: number;
+    h1: number;
+    h6: number;
+    h24: number;
+  };
+  liquidity: {
+    usd: number;
+    base: number;
+    quote: number;
+  };
   pairCreatedAt: number;
-  info: PairInfo;
-}
+  fdv?: number;
+  labels?: string[];
+  info?: {
+    imageUrl: string;
+    websites: {
+      label: string;
+      url: string;
+    }[];
+    socials: {
+      type: string;
+      url: string;
+    }[];
+  };
+};
 
-export interface TokenData {
+export type TokenData = {
   schemaVersion: string;
-  pairs: Pair[];
-}
+  pairs: DexPair[];
+};

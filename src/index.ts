@@ -25,6 +25,11 @@ log("Bot instance ready");
   let offset = 0;
   const limit = 50;
 
+  // const tx = (await aptos.getTransactionByVersion({
+  //   ledgerVersion: 536583021,
+  // })) as unknown as AptosTransaction;
+  // processTxn(tx);
+
   const toRepeat = async () => {
     try {
       let options: PaginationArgs = { limit };

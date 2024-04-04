@@ -1,12 +1,16 @@
-import { AptosTransaction } from "@/types";
-import { getTokenAddress } from "@/utils/web3";
-import { APTOS_COIN } from "@aptos-labs/ts-sdk";
+import { sendAlert } from "@/bot/sendAlert";
+import { AptosTransaction, ReceiversData } from "@/types";
+import { log } from "@/utils/handlers";
+import { getTokenAddress, getTokenMetadata } from "@/utils/web3";
 
 export async function processTxn(tx: AptosTransaction) {
-  const { events, changes } = tx;
+  const { events, changes, version } = tx;
   if (!events?.length || !changes?.length) return false;
 
-  eventsLoop: for (const event of events) {
+  const receivers: ReceiversData = {};
+
+  depositsLoop: for (const event of events) {
+    const receiver = event.guid.account_address;
     const isTokenDeposit = event.type.endsWith("::coin::DepositEvent");
     if (!isTokenDeposit) continue;
 
@@ -14,19 +18,75 @@ export async function processTxn(tx: AptosTransaction) {
 
     for (const change of changes) {
       const changeData = change.data;
-      if (!changeData) return false;
+      if (!changeData || change.address !== receiver) continue;
 
       const changeCreationNum =
         changeData.data.deposit_events?.guid.id.creation_num;
-
       if (changeCreationNum !== creation_number) continue;
 
       const token = getTokenAddress(changeData.type);
-      const amount = Number(event.data.amount);
-      const receiver = event.guid.account_address;
+      const metadata = await getTokenMetadata(token);
+      if (!metadata) continue depositsLoop;
+      const { decimals, symbol } = metadata;
 
-      if (token === APTOS_COIN || amount === 0 || !token || !receiver)
-        continue eventsLoop;
+      const amount = Number(event.data.amount) / 10 ** decimals;
+
+      receivers[receiver] = {
+        token,
+        tokenReceived: symbol,
+        amountReceived: amount,
+        amountSent: 0,
+        tokenSent: "",
+        version,
+        receiver,
+      };
     }
+  }
+
+  withdrawalsLoop: for (const event of events) {
+    const receiver = event.guid.account_address;
+    const isTokenDeposit = event.type.endsWith("::coin::WithdrawEvent");
+    const receiverData = receivers[receiver];
+    if (!isTokenDeposit || !receiverData) continue;
+
+    const { creation_number } = event.guid;
+
+    for (const change of changes) {
+      const changeData = change.data;
+      if (!changeData || change.address !== receiver) continue;
+
+      const changeCreationNum =
+        changeData.data.withdraw_events?.guid.id.creation_num;
+      if (changeCreationNum !== creation_number) continue;
+
+      const token = getTokenAddress(changeData.type);
+      const metadata = await getTokenMetadata(token);
+      if (!metadata) continue withdrawalsLoop;
+      const { decimals, symbol } = metadata;
+      const amount = Number(event.data.amount) / 10 ** decimals;
+
+      receivers[receiver] = {
+        ...receiverData,
+        tokenSent: symbol,
+        amountSent: amount,
+      };
+    }
+  }
+
+  for (const receiver in receivers) {
+    const receiverData = receivers[receiver];
+    const isMissingFields = Object.values(receiverData).some((value) => !value);
+    if (isMissingFields) {
+      delete receivers[receiver];
+      continue;
+    }
+
+    sendAlert(receiverData);
+
+    const { tokenReceived, amountReceived, tokenSent, amountSent } =
+      receiverData;
+    log(
+      `${amountReceived} ${tokenReceived} for ${amountSent} ${tokenSent}, ${version}`
+    );
   }
 }
