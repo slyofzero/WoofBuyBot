@@ -70,3 +70,14 @@ export type TokenData = {
   schemaVersion: string;
   pairs: DexPair[];
 };
+
+export interface TokenMetrics {
+  statusCode: number;
+  data: {
+    circulatingSupply: number;
+    totalSupply: number;
+    mcap: number;
+    fdv: number;
+    transactions: number;
+  };
+}

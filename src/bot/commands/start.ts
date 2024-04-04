@@ -1,12 +1,13 @@
-import { addDocument, getDocument, updateDocumentById } from "@/firebase";
+import { addDocument, updateDocumentById } from "@/firebase";
 import { StoredGroup } from "@/types";
 import { cleanUpBotMessage, onlyAdmin } from "@/utils/bot";
 import { BOT_USERNAME } from "@/utils/env";
-import { syncProjectGroups } from "@/vars/projectGroups";
+import { projectGroups, syncProjectGroups } from "@/vars/projectGroups";
 import { CommandContext, Context } from "grammy";
 
 export async function startBot(ctx: CommandContext<Context>) {
   const { match: token } = ctx;
+
   const { id: chatId, type } = ctx.chat;
   let text = `*Welcome to ${BOT_USERNAME}!!!*\n\n`;
 
@@ -36,10 +37,9 @@ Pass a token address in the bot chat to get an AI generated token report in real
 To configure bot;
 type /settings`;
 
-    const [projectData] = await getDocument<StoredGroup>({
-      collectionName: "project_groups",
-      queries: [["chatId", "==", String(chatId)]],
-    });
+    const projectData = projectGroups.find(
+      ({ chatId: storedChatId }) => storedChatId === chatId
+    );
 
     if (projectData) {
       ctx.reply(cleanUpBotMessage(text), { parse_mode: "MarkdownV2" });

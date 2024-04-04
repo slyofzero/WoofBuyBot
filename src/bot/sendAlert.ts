@@ -1,4 +1,4 @@
-import { TokenData, TxnData } from "@/types";
+import { TokenData, TokenMetrics, TxnData } from "@/types";
 import { apiFetcher } from "@/utils/api";
 import {
   cleanUpBotMessage,
@@ -6,19 +6,39 @@ import {
   hardCleanUpBotMessage,
 } from "@/utils/bot";
 import { EXPLORER_URL, TOKEN_API } from "@/utils/constants";
-import { BOT_USERNAME } from "@/utils/env";
-import { formatFloat, shortenAddress } from "@/utils/general";
+import { BOT_USERNAME, DEXTOOLS_API_KEY } from "@/utils/env";
+import {
+  formatFloat,
+  formatToInternational,
+  shortenAddress,
+} from "@/utils/general";
 import { projectGroups } from "@/vars/projectGroups";
 import { teleBot } from "..";
 import { errorHandler } from "@/utils/handlers";
 
 export async function sendAlert(txnData: TxnData) {
   const { token } = txnData;
-  const priceData = (await apiFetcher<TokenData>(`${TOKEN_API}/${token}`)).data;
+  const groups = projectGroups.filter(
+    ({ token: storedToken }) => storedToken === token
+  );
+
+  if (!groups.length) return false;
+
+  const [dexSData, dexTData] = await Promise.all([
+    apiFetcher<TokenData>(`${TOKEN_API}/${token}`),
+    apiFetcher<TokenMetrics>(
+      `https://public-api.dextools.io/standard/v2/token/aptos/${token}/info`,
+      { "X-API-KEY": DEXTOOLS_API_KEY || "" }
+    ),
+  ]);
+
+  const priceData = dexSData.data;
   const firstPair = priceData?.pairs.at(0);
+  const tokenInfo = dexTData.data?.data;
 
-  if (!firstPair) return;
+  if (!firstPair || !tokenInfo) return;
 
+  const { fdv, mcap } = tokenInfo;
   const { priceUsd } = firstPair;
   const {
     receiver,
@@ -33,10 +53,11 @@ export async function sendAlert(txnData: TxnData) {
   const cleanedName = cleanUpBotMessage(tokenReceived);
   const emojiCount = generateBuyEmojis(buyUsd);
   const shortendReceiver = cleanUpBotMessage(shortenAddress(receiver));
+  const dexToolsLink = `https://www.dextools.io/app/en/aptos/pair-explorer/${token}`;
 
-  const groups = projectGroups.filter(
-    ({ token: storedToken }) => storedToken === token
-  );
+  const websiteLink = "https://uptos.xyz/";
+  const twitterLink = "https://x.com/uptos_";
+  const telegramLink = "https://t.me/uptosportal";
 
   for (const group of groups) {
     const { emoji, chatId, mediaType, media } = group;
@@ -50,8 +71,12 @@ ${emojis}
       tokenSent
     )} \\($${cleanUpBotMessage(buyUsd)}\\)
 🔀 *Got*: ${formatFloat(amountReceived)} ${hardCleanUpBotMessage(tokenReceived)}
-👤 *Buyer*: [${shortendReceiver}](${EXPLORER_URL}/account/${receiver}) \\| [*${version}*](${EXPLORER_URL}/transaction/${version}) 
-🏷 *Price*: \\$${formatFloat(priceUsd)}
+👤 *Buyer*: [${shortendReceiver}](${EXPLORER_URL}/account/${receiver}) \\| [*${version}*](${EXPLORER_URL}/transaction/${version})
+⬆️ *FDV* \\~ $${cleanUpBotMessage(formatToInternational(fdv))}
+🔘 *Marketcap* \\~  $${cleanUpBotMessage(formatToInternational(mcap))}
+🫧 *Socials* \\- [Website](${websiteLink}) \\| [Twitter](${twitterLink}) \\| [Telegram](${telegramLink})
+
+[⚙️ DexTools](${dexToolsLink}) \\| [📊 CoinMarketCap](${dexToolsLink})
 `;
 
     // --------------------- Sending message ---------------------

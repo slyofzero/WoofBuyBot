@@ -3,7 +3,6 @@ import { initiateBotCommands, initiateCallbackQueries } from "./bot";
 import { errorHandler, log } from "./utils/handlers";
 import { BOT_TOKEN } from "./utils/env";
 import { aptos, processTxn, rpcConfig } from "./aptosWeb3";
-import { getEthPrice } from "./vars/ethPrice";
 import { syncProjectGroups } from "./vars/projectGroups";
 import { sleep } from "./utils/time";
 import { PaginationArgs } from "@aptos-labs/ts-sdk";
@@ -14,7 +13,6 @@ log("Bot instance ready");
 
 (async function () {
   rpcConfig();
-  await getEthPrice();
   teleBot.start();
   log("Telegram bot setup");
   initiateBotCommands();
@@ -24,11 +22,6 @@ log("Bot instance ready");
 
   let offset = 0;
   const limit = 50;
-
-  // const tx = (await aptos.getTransactionByVersion({
-  //   ledgerVersion: 536583021,
-  // })) as unknown as AptosTransaction;
-  // processTxn(tx);
 
   const toRepeat = async () => {
     try {
@@ -52,8 +45,4 @@ log("Bot instance ready");
   };
 
   toRepeat();
-
-  setInterval(() => {
-    getEthPrice();
-  }, 60 * 1e3);
 })();
