@@ -17,5 +17,5 @@ export async function syncProjectGroups() {
     collectionName: "project_groups",
   });
   projectGroups = rows;
-  log("Synced projectGroups with PG");
+  log("Synced projectGroups with firebase");
 }

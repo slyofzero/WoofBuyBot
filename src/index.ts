@@ -1,27 +1,19 @@
 import { Bot } from "grammy";
 import { initiateBotCommands, initiateCallbackQueries } from "./bot";
-import { log } from "./utils/handlers";
-import { BOT_TOKEN, OPEN_AI_KEY } from "./utils/env";
-import { configureWeb3, processTxn, web3, wssProvider } from "./ethWeb3";
+import { errorHandler, log } from "./utils/handlers";
+import { BOT_TOKEN } from "./utils/env";
+import { aptos, processTxn, rpcConfig } from "./aptosWeb3";
 import { getEthPrice } from "./vars/ethPrice";
-import { TransactionExtended } from "./types/web3";
 import { syncProjectGroups } from "./vars/projectGroups";
-import { OpenAI } from "openai";
-
-if (!OPEN_AI_KEY) {
-  log("OPEN_AI_KEY is undefined");
-  process.exit(1);
-}
-
-export const openai = new OpenAI({
-  apiKey: OPEN_AI_KEY,
-});
+import { sleep } from "./utils/time";
+import { PaginationArgs } from "@aptos-labs/ts-sdk";
+import { AptosTransaction } from "./types";
 
 export const teleBot = new Bot(BOT_TOKEN || "");
 log("Bot instance ready");
 
 (async function () {
-  configureWeb3();
+  rpcConfig();
   await getEthPrice();
   teleBot.start();
   log("Telegram bot setup");
@@ -30,46 +22,31 @@ log("Bot instance ready");
 
   await Promise.all([syncProjectGroups()]);
 
-  if (!wssProvider || !web3) {
-    log("wssProvider or web3 is null");
-    return false;
-  }
+  let offset = 0;
+  const limit = 50;
 
-  // const tx = (await web3?.eth.getTransaction(
-  //   "0xaee94da08b38bc58bc08191af7195cb0f1d01128cd09b6a8f72e009aa34074fd"
-  // )) as TransactionExtended;
-  // processTxn(tx);
+  const toRepeat = async () => {
+    try {
+      let options: PaginationArgs = { limit };
+      if (offset > 0) options = { offset, ...options };
+      const txns = await aptos.getTransactions({ options });
 
-  const subscription = await web3.eth.subscribe("newBlockHeaders");
-  subscription.on("data", async (blockHeader) => {
-    const block = await web3?.eth.getBlock(blockHeader.hash, false);
-    log(`Block ${block?.number} caught`);
+      txns.forEach((txn, index) => {
+        const txnData = txn as unknown as AptosTransaction;
+        const version = Number(txnData.version);
 
-    if (block && block.transactions) {
-      for (const txHash of block.transactions) {
-        const tx = (await web3?.eth.getTransaction(
-          txHash.toString()
-        )) as TransactionExtended;
-        processTxn(tx);
-      }
+        processTxn(txnData);
+        if (index === limit - 1) offset = version + 1;
+      });
+    } catch (error) {
+      errorHandler(error);
+    } finally {
+      await sleep(1000);
+      toRepeat();
     }
-  });
+  };
 
-  subscription.on("error", (err) => {
-    const error = err as Error;
-    log(`WS connection error: ${error.message}`);
-    process.exit(1);
-  });
-  wssProvider.on("end", () => {
-    log("WS connection closed. Attempting to reconnect...");
-    process.exit(1);
-  });
-  // @ts-expect-error no err type
-  wssProvider.on("error", (err) => {
-    const error = err as Error;
-    log(`WS connection error: ${error.message}`);
-    process.exit(1);
-  });
+  toRepeat();
 
   setInterval(() => {
     getEthPrice();

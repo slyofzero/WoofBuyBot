@@ -5,10 +5,4 @@ dotenv.config({
   path: NODE_ENV === "development" ? ".env" : ".env.production",
 });
 
-export const {
-  BOT_TOKEN,
-  BOT_USERNAME,
-  ALCHEMY_API_KEY,
-  FIREBASE_KEY,
-  OPEN_AI_KEY,
-} = process.env;
+export const { BOT_TOKEN, BOT_USERNAME, FIREBASE_KEY } = process.env;
