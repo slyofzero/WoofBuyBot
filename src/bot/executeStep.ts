@@ -32,7 +32,5 @@ export async function executeStep(
 
   if (stepFunction) {
     stepFunction(ctx);
-  } else {
-    log(`No step function for ${queryCategory} ${userState[chatId]}`);
   }
 }
