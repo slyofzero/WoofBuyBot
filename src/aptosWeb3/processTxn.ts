@@ -2,6 +2,7 @@ import { sendAlert } from "@/bot/sendAlert";
 import { AptosTransaction, ReceiversData } from "@/types";
 import { log } from "@/utils/handlers";
 import { getTokenAddress, getTokenMetadata } from "@/utils/web3";
+import { prevTxns, setPrevTxn } from "@/vars/prevTxn";
 
 export async function processTxn(tx: AptosTransaction) {
   const { events, changes, version } = tx;
@@ -81,12 +82,18 @@ export async function processTxn(tx: AptosTransaction) {
       continue;
     }
 
-    sendAlert(receiverData);
-
     const { tokenReceived, amountReceived, tokenSent, amountSent } =
       receiverData;
-    log(
-      `${amountReceived} ${tokenReceived} for ${amountSent} ${tokenSent}, ${version}`
-    );
+    const txn = `${version}_${amountReceived}_${tokenReceived}`;
+
+    if (!prevTxns.includes(txn)) {
+      sendAlert(receiverData);
+      log(
+        `${amountReceived} ${tokenReceived} for ${amountSent} ${tokenSent}, ${version}`
+      );
+      setPrevTxn(txn);
+    } else {
+      log(`Duplicate of ${txn}`);
+    }
   }
 }
