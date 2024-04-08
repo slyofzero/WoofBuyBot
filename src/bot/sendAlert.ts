@@ -54,13 +54,12 @@ export async function sendAlert(txnData: TxnData) {
   const emojiCount = generateBuyEmojis(buyUsd);
   const shortendReceiver = cleanUpBotMessage(shortenAddress(receiver));
   const dexToolsLink = `https://www.dextools.io/app/en/aptos/pair-explorer/${token}`;
-  const cmcLink = "https://coinmarketcap.com/currencies/uptos/";
-  const dexscreenLink =
-    "https://dexscreener.com/aptos/liquidswapv0p5-5201?__cf_chl_tk=ZXjWzqAUSx0mruRmpsQ0NmpV.gZuOGAnm7t72RdvUjI-1712224096-0.0.1.1-1663";
+  const cmcLink = "https://coinmarketcap.com/dexscan/aptos/17-780022-10008/";
+  const dexscreenLink = "https://dexscreener.com/aptos/liquidswapv0p5-5234";
 
-  const websiteLink = "https://uptos.xyz/";
-  const twitterLink = "https://x.com/uptos_";
-  const telegramLink = "https://t.me/uptosportal";
+  const websiteLink = "https://woofaptos.space/";
+  const twitterLink = "https://x.com/woofonaptos/";
+  const telegramLink = "https://t.me/WoofOnAptos/";
 
   for (const group of groups) {
     const { emoji, chatId, mediaType, media } = group;

@@ -1,4 +1,4 @@
-export const firebaseCollectionPrefix = "uptosbuybot";
+export const firebaseCollectionPrefix = "woofbuybot";
 
 export const PRICE_API =
   "https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT";
