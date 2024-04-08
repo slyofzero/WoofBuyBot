@@ -74,8 +74,7 @@ ${emojis}
     )} \\($${cleanUpBotMessage(buyUsd)}\\)
 🔀 *Got*: ${formatFloat(amountReceived)} ${hardCleanUpBotMessage(tokenReceived)}
 👤 *Buyer*: [${shortendReceiver}](${EXPLORER_URL}/account/${receiver}) \\| [*${version}*](${EXPLORER_URL}/transaction/${version})
-⬆️ *FDV* \\~ $${cleanUpBotMessage(formatToInternational(fdv))}
-🔘 *Marketcap* \\~  $${cleanUpBotMessage(formatToInternational(mcap))}
+🔘 *Marketcap* \\~  $${cleanUpBotMessage(formatToInternational(fdv || mcap))}
 🫧 *Socials* \\- [Website](${websiteLink}) \\| [Twitter](${twitterLink}) \\| [Telegram](${telegramLink})
 
 [⚙️ DexTools](${dexToolsLink}) \\| [📊 CoinMarketCap](${cmcLink})
